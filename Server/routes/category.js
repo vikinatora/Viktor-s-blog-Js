@@ -63,6 +63,11 @@ function validateCategoryCreateForm(payload) {
     errors.name = 'Category name must be at least 3 symbols.'
   }
 
+  if (payload.imageUrl.length < 14 || !(payload.imageUrl.startsWith('https://') || payload.imageUrl.startsWith('http://'))) {
+    isFormValid = false
+    errors.imageUrl = 'Category image URL must be at least 14 characters long and must be valid URL.'
+  }
+
   if (!isFormValid) {
     message = 'Check the form for errors.'
   }

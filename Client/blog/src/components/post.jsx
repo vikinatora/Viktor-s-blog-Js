@@ -8,14 +8,12 @@ class Post extends Component {
         let {post} = this.props;
         
         return(
-            <div className="container-fluid float-left col-sm-8 ">
+            <div className=" ">
                 <div className="row">
                     <div className="col-sm-8">
                         <div className="page-header">
                             <h1>{post.title}</h1>
-                            <p>Posted by <span className="glyphicon glyphicon-user"></span>
-                            <a href="#">Viktor Todorov</a> on <span className="glyphicon glyphicon-time">
-                            </span>{post.dateCreated.slice(0,10)}</p>
+                            <p>Posted by <strong>Viktor Todorov</strong> on <span>{post.dateCreated.slice(0,10)}</span></p>
                         </div>
                     </div>
                 </div>
@@ -25,7 +23,7 @@ class Post extends Component {
 
                         {/* <!-- Image --> */}
                         <figure className="margin-b-2">
-                            <Image fluid rounded src={post.imageUrl} alt=""/>
+                            <Image styles={{"max-height":"200px"}} fluid rounded src={post.imageUrl} alt=""/>
                         </figure>
 
                         <strong>

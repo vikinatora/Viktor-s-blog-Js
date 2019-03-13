@@ -75,7 +75,7 @@ router.post('/signup', (req, res, next) => {
     if (err) {
       return res.status(200).json({
         success: false,
-        message: err
+        errors: err
       })
     }
 
@@ -101,13 +101,13 @@ router.post('/login', (req, res, next) => {
       if (err.name === 'IncorrectCredentialsError') {
         return res.status(200).json({
           success: false,
-          message: err.message
+          errors: err.message
         })
       }
 
       return res.status(200).json({
         success: false,
-        message: 'Could not process the form.'
+        errors: 'Could not process the form.'
       })
     }
 

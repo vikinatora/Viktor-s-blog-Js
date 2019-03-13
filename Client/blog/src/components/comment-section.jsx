@@ -4,6 +4,7 @@ import CommentsService from '../services/comments-service';
 import CommentForm from './comment-form';
 import Button from 'react-bootstrap/Button';
 import Comment from './comment';
+import {UserConsumer} from './context/user';
 
 class CommentSection extends Component {
     constructor(props) {
@@ -55,6 +56,7 @@ class CommentSection extends Component {
 
     render() {
         let {comments, postId, showHideButton} = this.state;
+        let {isLoggedIn} = this.props;
 
         return ( 
             <Fragment>
@@ -67,18 +69,37 @@ class CommentSection extends Component {
                 {
                     comments.map(comment=> (
                         <ul key={comment._id}>
-                            <Comment updateComments={this.updateComments} comment={comment}></Comment>
+                            <Comment isLoggedIn={isLoggedIn} updateComments={this.updateComments} comment={comment}></Comment>
                         </ul>
                         
                     ))
                    
                 }
                 </div>
-                <CommentForm postId={postId} updateComments={this.updateComments}/>
+                {
+                    isLoggedIn
+                    ?<CommentForm postId={postId} updateComments={this.updateComments}/>
+                    :<h5>Please log in in order to leave a comment</h5>
+                }
                 <hr></hr>
             </Fragment>
         )
     }
 }
 
-export default CommentSection;
+const CommentSectionWithContext = (props) => {
+    return (
+        <UserConsumer>
+            {
+                ({isLoggedIn})=>(
+                    <CommentSection
+                        {...props}
+                        isLoggedIn={isLoggedIn}
+                    />
+                )
+            }
+        </UserConsumer>
+    );
+}
+
+export default CommentSectionWithContext;

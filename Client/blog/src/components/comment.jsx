@@ -32,16 +32,26 @@ class Comment extends Component {
 
     async Upvote(id){
         try{
-            await Comment.service.upvoteComment(id);
+            if(this.props.isLoggedIn) {        
+                await Comment.service.upvoteComment(id);
+            } else {
+                throw new Error('Please log in in order to upvote comments');
+            }
 
         } catch(error) {
             this.setState({error})
         }
+        
+        
     }
 
     async Downvote(id){
         try{
-            await Comment.service.downvoteComment(id);
+            if(this.props.isLoggedIn) {        
+                await Comment.service.downvoteComment(id);
+            } else {
+                throw new Error('Please log in in order to downvote comments');
+            }
 
         } catch(error) {
             this.setState({error})
@@ -54,7 +64,7 @@ class Comment extends Component {
     }
 
     render() {
-        let {comment} = this.props;
+        let {comment, isLoggedIn} = this.props;
         return (
             <div className="media">
                 <div className="media-body">
@@ -63,6 +73,7 @@ class Comment extends Component {
                     <h4>{comment.content}</h4>
                                 
                     <Button variant="info" className="btn btn-sm btn-default" onClick={async ()=>{
+
                         await this.Upvote(comment._id);
                         this.props.updateComments();
                         }}>
@@ -75,10 +86,6 @@ class Comment extends Component {
                         <span className="glyphicon glyphicon-thumbs-down"></span>{comment.downvotes ? comment.downvotes.length : 0} 👎 Downvote
                     </Button>
                     {
-                        // !comment.replies.length
-                        // ? 
-                        // <h5>No replies yet :(</h5>
-                        // :
                         <Button className="btn btn-sm btn-default" onClick={()=>this.showHideReply()}>
                             <span className="glyphicon glyphicon-comment"> </span> 
                             {this.toggleText}
@@ -93,7 +100,13 @@ class Comment extends Component {
                             </ul>
                         ))
                     }
-                    <ReplyForm commentId={comment._id} updateComments={this.props.updateComments}></ReplyForm>
+                    {
+                        isLoggedIn
+                        ? <ReplyForm commentId={comment._id} updateComments={this.props.updateComments}></ReplyForm>
+                        : <h5>Please log in in order to leave a reply</h5>
+                    }
+                   
+                    
                     </div>
                     <hr></hr>
                 </div>
