@@ -4,6 +4,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import AutheticationService from '../services/authentication-service';
 import {UserConsumer} from '../components/context/user';
+import toastr from 'toastr';
 
 class Login extends Component {
     static service = new AutheticationService();
@@ -11,7 +12,6 @@ class Login extends Component {
     state = {
         email:'',
         password:'',
-        error:'',
     };
 
     handleChange = ({target}) => {
@@ -20,7 +20,7 @@ class Login extends Component {
         })
     }
 
-    handleSubmit = (event) => {
+    handleSubmit = async (event) => {
         const {email, password} = this.state;
         const {updateUser} = this.props;
 
@@ -30,17 +30,13 @@ class Login extends Component {
             email,
             password
         }
-
-        this.setState({
-            error:''
-        }, async ()=>{
-            try{
                 const result = await Login.service.login(credentials);
-
+                console.log(result);
                 if(!result.success) {
-                    const errors = Object.values(result.errors).join(' ');
-                    throw new Error(errors);
+                    toastr.error(Object.values(result.errors).join(" "),'Problems with logging in');
+                    return;
                 }
+
                 window.localStorage.setItem('auth_token',result.token);
                 window.localStorage.setItem('user',JSON.stringify({
                     ...result.user,
@@ -59,16 +55,11 @@ class Login extends Component {
                 });
                 
                 return <Redirect to='/'/>
-            } catch(err) {
-                this.setState({
-                    error:err.message
-                })
-            }
-        });
+
     }
 
     render() {
-        const {email,password, error} = this.state;
+        const {email,password} = this.state;
         const {isLoggedIn} = this.props;
 
         if(isLoggedIn) {
@@ -79,11 +70,6 @@ class Login extends Component {
 
         return (
             <Form className="big" onSubmit={this.handleSubmit}>
-            {
-                error.length
-                ? <div>Something went wrong : {error}</div>
-                :null
-            }
             <Form.Group controlId="email">
                 <Form.Label>Email</Form.Label>
                 <Form.Control type="text" onChange={this.handleChange} value={email} placeholder="Enter email" />

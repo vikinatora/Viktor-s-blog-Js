@@ -14,7 +14,6 @@ import Header from './components/header'
 
 import './App.css';
 import { UserProvider, defaultUserState } from './components/context/user';
-import BackgroundImagePage from './components/background/backgroundImage';
 
 class App extends Component {
   constructor(props) {

@@ -22,8 +22,6 @@ function validatePostCreateForm(payload) {
     isFormValid = false
     errors.description = 'Content must be at least 10 symbols and less than 1000 symbols.'
   }
-
-  //Add imageUrl
   
   if (!isFormValid) {
     message = 'Check the form for errors.'
@@ -98,7 +96,6 @@ router.get('/all', (req, res) => {
       populate: { path: 'author' }
     })
     .then(posts => {
-      console.log(posts.comments);
       res.status(200).json(posts)
     })
 })
@@ -109,7 +106,19 @@ router.get('/:id', (req, res) => {
     .findById(postId)
     .populate('category')
     .then(post => {
-      res.status(200).json(post)
+      res.status(200).json({
+        success: true,
+        message: 'Post found successfully.',
+        data: post
+    })
+  })
+  .catch((err) => {
+    console.log(err)
+    let message = "Can't find post with the given id"
+    return res.status(200).json({
+      success: false,
+      message: message
+    })
   })
 })
 
@@ -183,22 +192,33 @@ router.delete('/delete/:id', authCheck, (req, res) => {
     Post
       .findById(id)
       .then((post) => {
-        post
-          .remove()
-          .then(() => {
-            return res.status(200).json({
-              success: true,
-              message: 'Post deleted successfully!'
+        
+        post.comments.forEach(comment => {
+          Comment.findById(comment._id)
+            .then((comment)=>{
+              console.log(`postid - ${comment}`);
+              comment.remove();
             })
-          })
-      })
-      .catch(() => {
-        return res.status(200).json({
-          success: false,
-          message: 'Entry does not exist!'
+
+            post
+            .remove()
+            .then(() => {
+              return res.status(200).json({
+                success: true,
+                message: 'Post deleted successfully!'
+              })
+              
+        })    
+            .catch((err) => {
+              // return res.status(200).json({
+              //   success: false,
+              //   message: 'Entry does not exist!'
+              console.log(err);
+              })
+            })
         })
-      })
-  } else {
+      }
+   else {
     return res.status(200).json({
       success: false,
       message: 'Invalid credentials!'
