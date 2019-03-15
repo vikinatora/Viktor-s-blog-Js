@@ -5,13 +5,13 @@ import {UserConsumer} from '../components/context/user';
 import PostService from '../services/posts-service';
 import CategoriesService from '../services/categories-service';
 import NotFound from '../views/not-found';
+import toastr from 'toastr'
 
 class EditPost extends Component {
     constructor(props){
         super(props);
 
         this.state = {
-            error:'',
             title:'',
             content:'',
             categories:[],
@@ -27,9 +27,14 @@ class EditPost extends Component {
         let initialCategories = [];
         try {
             let categories = await EditPost.categoriesService.getCategories();
-            let post = await EditPost.postService.getPost(id);
+            let result = await EditPost.postService.getPost(id);
+            console.log(result);
+            if(!result.success){
+                toastr.error("Couldn't find the post you are looking for",'Problems with finding post');
+                this.props.history.push('/')
+            }
 
-            const {title,content,category} = post;
+            const {title,content,category} = result.data;
 
             initialCategories = categories.map((category) => {
                 return category.name
@@ -55,7 +60,7 @@ class EditPost extends Component {
         })
     }
 
-    handleSubmit = (event) => {
+    handleSubmit = async (event) => {
         const {title, content,category} = this.state;
 
         event.preventDefault();
@@ -67,31 +72,22 @@ class EditPost extends Component {
             category
         }
 
-        this.setState({
-            error:''
-        }, async ()=>{
-            try{
-                const result = await EditPost.postService.editPost(data);
+        const result = await EditPost.postService.editPost(data);
 
-                if(!result.success) {
-                    const errors = Object.values(result.errors).join(' ');
-                    throw new Error(errors);
-                }
-                
-                this.props.history.push('/');
+        if(!result.success) {
+            toastr.error(Object.values(result.errors).join("\r\n"),'Problems with editing post');
+            return;
+        }
 
-            } catch(err) {
-                this.setState({
-                    error:err.message
-                })
-            }
-        });
+        toastr.success('Post edited successfully!');
+        this.props.history.push('/');
+
     }
 
     render() {
         const {isLoggedIn, isAdmin} = this.props;
 
-        const {error,title,content, categories, category} = this.state;
+        const {title,content, categories, category} = this.state;
 
         if(!isLoggedIn || !isAdmin) {
             this.props.history.push('/');
@@ -102,11 +98,6 @@ class EditPost extends Component {
         )
         return (
             <Form className="big" onSubmit={this.handleSubmit}>
-            {
-                error.length
-                ? <div>Something went wrong : {error}</div>
-                :null
-            }
             <Form.Group controlId="title">
                 <Form.Label>Title</Form.Label>
                 <Form.Control type="text" onChange={this.handleChange} value={title} placeholder="Enter title" />

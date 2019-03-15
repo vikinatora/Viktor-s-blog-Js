@@ -5,7 +5,8 @@ const defaultUserState = {
     username:[],
     isLoggedIn:false,
     isAdmin:false,
-    updateUser() {} 
+    updateUser() {} ,
+    updateCategories(){},
 };
 
 const {Consumer :UserConsumer, Provider: UserProvider} = createContext(defaultUserState);

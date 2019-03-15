@@ -6,7 +6,8 @@ class PostsService {
         this.createUrl = `${this.baseUrl}/create`;
         this.editUrl = `${this.baseUrl}/edit`;
         this.getUrl = `${this.baseUrl}/all`;
-        this.deleteUrl = `${this.baseUrl}/delete`
+        this.searchUrl = `${this.baseUrl}/search`;
+        this.deleteUrl = `${this.baseUrl}/delete`;
     }
     
     createPost(data) {
@@ -26,6 +27,10 @@ class PostsService {
 
     getPost(id) {
         return get(`${this.baseUrl}/${id}`);
+    }
+
+    getPostsByName(name) {
+        return get(`${this.searchUrl}/${name}`)
     }
 
 }

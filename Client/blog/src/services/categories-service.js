@@ -15,6 +15,10 @@ class CategoriesService {
         return get(this.getUrl);
     }
 
+    findPostsByName(name) {
+        return get(`${this.baseUrl}/${name}`);
+    }
+
 }
 
 export default CategoriesService

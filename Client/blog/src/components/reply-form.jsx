@@ -3,6 +3,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import ReplyService from '../services/reply-service';
 import {UserConsumer} from '../components/context/user';
+import toastr from 'toastr'
 
 class ReplyForm extends Component {
     constructor(props){
@@ -24,10 +25,9 @@ class ReplyForm extends Component {
         })
     }
 
-    handleSubmit = (event) => {
+    handleSubmit = async (event) => {
         const {content, commentId} = this.state;
         const {username} = this.props;
-        console.log(commentId);
         event.preventDefault();
 
         const data = {
@@ -36,25 +36,21 @@ class ReplyForm extends Component {
             username
         }
 
-        this.setState({
-            content:'',
-            error:''
-        }, async ()=>{
-            try{
-                const result = await ReplyForm.service.CreateReply(data);
+        try{
+            const result = await ReplyForm.service.CreateReply(data);
 
-                if(!result.success) {
-                    const errors = Object.values(result.errors).join(' ');
-                    throw new Error(errors);
-                }
-                this.props.updateComments();
-
-            } catch(err) {
-                this.setState({
-                    error:err.message
-                })
+            if(!result.success) {
+                toastr.error(Object.values(result.errors).join(' '),"Problems with posting your reply")
+                return
             }
-        });
+            this.props.updateComments();
+            this.setState({
+                content:''
+            })
+
+        } catch(err) {
+            toastr.error(err.message,"Problems with posting your reply")
+        }
     }
 
     render() {

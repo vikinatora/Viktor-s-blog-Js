@@ -7,7 +7,9 @@ class Reply extends Component {
             <Fragment>
                  <div className="media-body">
                 <p><strong>{reply.author.username}</strong> at <strong>{reply.dateCreated.slice(11,16)}</strong></p>
-                <h5>{reply.content}</h5>
+                <p style={{"fontSize":"19px"}}>
+                    {reply.content}
+                </p>
             </div>
             <hr></hr>
             </Fragment>

@@ -9,12 +9,16 @@ import CreatePost from './views/create-post';
 import EditPost from './views/edit-post';
 import CreateCategory from './views/create-category';
 import ManagePosts from './views/manage-posts';
+import PostsByCategory from './views/posts-by-category';
+import PostsByName from './views/posts-by-name';
 
-import Header from './components/header'
+
+import Header from './components/header';
+import { UserProvider, defaultUserState } from './components/context/user';
+
+import toastr from 'toastr';
 
 import './App.css';
-import { UserProvider, defaultUserState } from './components/context/user';
-import BackgroundImagePage from './components/background/backgroundImage';
 
 class App extends Component {
   constructor(props) {
@@ -28,11 +32,14 @@ class App extends Component {
         ...defaultUserState.isLoggedIn,
         ...defaultUserState.isAdmin,
         ...parsedUser,
-        updateUser:this.updateUser
+        updateUser:this.updateUser,
+        updateCategories:this.updateCategories
       }
     }
     this.logout = this.logout.bind(this);
   }
+
+  
 
   updateUser = (user) => {
     this.setState({user});
@@ -40,10 +47,9 @@ class App extends Component {
 
   logout = (event) => {
     event.preventDefault();
-
-    console.log(event);
     window.localStorage.clear();
     this.updateUser(defaultUserState);
+    toastr.info('Log out successful.')
   };
   
   render() {
@@ -54,7 +60,6 @@ class App extends Component {
             <div>
               <Router>
                 <Fragment>
-                  {/* <BackgroundImagePage/> */}
                     <UserProvider value={user}>
                     <Header logout={this.logout} />
                     <Switch>
@@ -62,6 +67,8 @@ class App extends Component {
                       <Route exact path="/login" component = {Login}/>
                       <Route exact path="/createpost" component = {CreatePost}/>
                       <Route exact path="/editpost/:id" component = {EditPost}/>
+                      <Route exact path="/category/:name" component = {PostsByCategory}/>
+                      <Route exact path="/post/search/:name" component = {PostsByName}/>
                       <Route exact path="/manageposts" component = {ManagePosts}/>
                       <Route exact path="/createcategory" component = {CreateCategory}/>
                       <Route exact path="/register" component = {Register}/>

@@ -1,22 +1,25 @@
 import React, {Component} from 'react';
-import {Redirect} from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import {UserConsumer} from '../components/context/user';
 import PostService from '../services/posts-service';
 import CategoriesService from '../services/categories-service';
 
+import Header from '../components/header';
+
+import toastr from 'toastr';
+
 class CreatePost extends Component {
     constructor(props){
         super(props);
 
         this.state = {
-            error:'',
             title:'',
             content:'',
             categories:[],
             category:''
         }
+        // this.updateCategories = this.props.updateCategories.bind(this);
     }
     static postService = new PostService();
     static categoriesService = new CategoriesService();
@@ -25,7 +28,6 @@ class CreatePost extends Component {
     async componentDidMount() {
         let initialCategories = [];
         const data = await CreatePost.categoriesService.getCategories();
-        console.log(data);
         initialCategories = data.map((category) => {
             return category.name
         });
@@ -43,7 +45,7 @@ class CreatePost extends Component {
         })
     }
 
-    handleSubmit = (event) => {
+    handleSubmit = async (event) => {
         const {title, content,category} = this.state;
 
         event.preventDefault();
@@ -54,31 +56,24 @@ class CreatePost extends Component {
             category
         }
 
-        this.setState({
-            error:''
-        }, async ()=>{
-            try{
-                const result = await CreatePost.postService.createPost(data);
+        const result = await CreatePost.postService.createPost(data);
 
-                if(!result.success) {
-                    const errors = Object.values(result.errors).join(' ');
-                    throw new Error(errors);
-                }
-                
-                this.props.history.push('/');
+        if(!result.success) {
+            toastr.error(Object.values(result.errors).join("\r\n"),'Problems with creating post');
+            return;
+        } else {
+            toastr.success(`Successfully created ${title} post`);
+            // this.updateCategories();
+            this.props.history.push('/');
 
-            } catch(err) {
-                this.setState({
-                    error:err.message
-                })
-            }
-        });
+        }
+        
     }
 
     render() {
         const {isLoggedIn, isAdmin} = this.props;
 
-        const {error,title,content, categories, category} = this.state;
+        const {title,content, categories, category} = this.state;
 
         if(!isLoggedIn || !isAdmin) {
             this.props.history.push('/');
@@ -89,11 +84,6 @@ class CreatePost extends Component {
         )
         return (
             <Form  className="col-sm-6" onSubmit={this.handleSubmit}>
-            {
-                error.length
-                ? <div>Something went wrong : {error}</div>
-                :null
-            }
             <Form.Group controlId="title">
                 <Form.Label>Title</Form.Label>
                 <Form.Control type="text" onChange={this.handleChange} value={title} placeholder="Enter title" />

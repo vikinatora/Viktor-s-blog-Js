@@ -1,6 +1,7 @@
 const express = require('express')
 const authCheck = require('../config/auth-check')
 const Category = require('../models/Category')
+const Post = require('../models/Post')
 const router = new express.Router()
 
 router.post('/create', authCheck, (req, res) => {
@@ -51,6 +52,30 @@ router.get('/all', (req, res) => {
   })
 })
 
+router.get('/:name', async (req,res)=>{
+  const name = req.params.name;
+  try{
+    let category = await Category.findOne({name});
+
+    let posts = await Post.find({category:category._id})
+                          .sort([['dateCreated', -1]])
+                          .populate('category')
+                          .populate({
+                            path: 'comments',
+                            populate: { path: 'author' }
+                          });
+  
+    return res.status(200).json(posts);
+  }
+  catch(err){
+    return res.status(200).json({
+      success: false,
+      message: err
+  })
+  }
+  
+})
+
 function validateCategoryCreateForm(payload) {
   const errors = {}
   let isFormValid = true
@@ -61,6 +86,11 @@ function validateCategoryCreateForm(payload) {
   if (!payload || typeof payload.name !== 'string' || payload.name.length < 3) {
     isFormValid = false
     errors.name = 'Category name must be at least 3 symbols.'
+  }
+
+  if (payload.imageUrl.length < 14 || !(payload.imageUrl.startsWith('https://') || payload.imageUrl.startsWith('http://'))) {
+    isFormValid = false
+    errors.imageUrl = 'Category image URL must be at least 14 characters long and must be valid URL.'
   }
 
   if (!isFormValid) {

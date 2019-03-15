@@ -4,16 +4,21 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import {UserConsumer} from '../components/context/user';
 import CategoriesService from '../services/categories-service';
+import toastr from 'toastr';
+
+
 
 class CreateCategory extends Component {
     constructor(props){
         super(props);
 
         this.state = {
-            error:'',
             name:'',
             imageUrl:''
         }
+    
+        // this.updateCategories =  updateCategories.bind(this)
+
     }
     static service = new CategoriesService();
 
@@ -24,9 +29,8 @@ class CreateCategory extends Component {
         })
     }
 
-    handleSubmit = (event) => {
+    handleSubmit = async (event) => {
         const {name, imageUrl} = this.state;
-
         event.preventDefault();
 
         const data = {
@@ -34,31 +38,20 @@ class CreateCategory extends Component {
             imageUrl
         }
 
-        this.setState({
-            error:''
-        }, async ()=>{
-            try{
-                const result = await CreateCategory.service.createCategory(data);
-
-                if(!result.success) {
-                    const errors = Object.values(result.errors).join(' ');
-                    throw new Error(errors);
-                }
-                
-                this.props.history.push('/');
-
-            } catch(err) {
-                this.setState({
-                    error:err.message
-                })
-            }
-        });
+        const result = await CreateCategory.service.createCategory(data);
+        if(!result.success) {
+            toastr.error(Object.values(result.errors).join("\r\n"),'Problems with creating category')
+            return
+        }  
+        toastr.success(`Successfully created category ${name}`);
+        await this.updateCategories();
+        this.props.history.push('/');
     }
 
     render() {
         const {isLoggedIn, isAdmin} = this.props;
 
-        const {error, name, imageUrl} = this.state;
+        const {name, imageUrl} = this.state;
 
         if(!isLoggedIn || !isAdmin) {
             return <Redirect to="/"/>
@@ -66,23 +59,18 @@ class CreateCategory extends Component {
 
         return (
             <Form className="col-md-6 centered" onSubmit={this.handleSubmit}>
-            {
-                error.length
-                ? <div>Something went wrong : {error}</div>
-                : null
-            }
-            <Form.Group controlId="name">
-                <Form.Label>Name</Form.Label>
-                <Form.Control type="text" onChange={this.handleChange} value={name} placeholder="Enter name of category" />
-            </Form.Group>
-            <Form.Group controlId="imageUrl">
-                <Form.Label>Category Image</Form.Label>
-                <Form.Control type="text" onChange={this.handleChange} value={imageUrl} placeholder="Enter an image url that will appear on all posts with the given category" />
-            </Form.Group>
-            <Button variant="primary" type="submit">
-                Submit
-            </Button>
-        </Form>
+                <Form.Group controlId="name">
+                    <Form.Label>Name</Form.Label>
+                    <Form.Control type="text" onChange={this.handleChange} value={name} placeholder="Enter name of category" />
+                </Form.Group>
+                <Form.Group controlId="imageUrl">
+                    <Form.Label>Category Image</Form.Label>
+                    <Form.Control type="text" onChange={this.handleChange} value={imageUrl} placeholder="Enter an image url that will appear on all posts with the given category" />
+                </Form.Group>
+                <Button variant="primary" type="submit">
+                    Submit
+                </Button>
+            </Form>
         );
     }
 }

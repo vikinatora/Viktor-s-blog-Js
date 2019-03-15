@@ -2,6 +2,7 @@ import React, {Component, Fragment} from 'react';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import {Button} from 'react-bootstrap';
 import PostsService from '../services/posts-service';
+import toastr from 'toastr';
 
 class ManagePosts extends Component{
     constructor(props) {
@@ -19,12 +20,14 @@ class ManagePosts extends Component{
         if(window.confirm('Do you really want to delete this exceptional post?')) {
             try{
                 await ManagePosts.postService.deletePost(postId);
+                toastr.info('Post successfully deleted');
                 this.setState({
                     posts:this.state.posts.filter(p=>p.id!==postId)
                 })
 
             } catch(err) {
-                this.setState({err})
+                toastr.error(err.message);
+
             }
         }
     }

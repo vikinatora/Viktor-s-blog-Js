@@ -4,6 +4,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import AuthenticationService from '../services/authentication-service';
 import {UserConsumer} from '../components/context/user';
+import toastr from 'toastr';
 
 
 class Register extends React.Component {
@@ -15,7 +16,6 @@ class Register extends React.Component {
             email:'',
             password:'',
             confirmPassword:'',
-            error:''
         }
     }
     static service = new AuthenticationService();
@@ -26,51 +26,34 @@ class Register extends React.Component {
         })
     }
 
-    handleSubmit = (event) => {
+    handleSubmit = async (event) => {
+        event.preventDefault();
+
        const {username, email, password, confirmPassword} = this.state;
 
         if(password !== confirmPassword) {
-            this.setState({
-                error:'Passwords must match'
-            })
+            toastr.error("Passwords don't match",'Problem with register')
         }
 
-        this.setState({
-            error:''
-        }, async ()=>{
-            const credentials = {
-                username,
-                email,
-                password
-            }
-            try{
-                const result = await Register.service.register(credentials);
+        const credentials = {
+            username,
+            email,
+            password
+        }
 
-                if(!result.success) {
-                    const errors = Object.values(result.errors).join(' ');
-                    throw new Error(errors);
-                }
+        const result = await Register.service.register(credentials);
 
-                window.localStorage.setItem('auth_token',result.token);
-                window.localStorage.setItem('user',JSON.stringify({
-                    ...result.user,
-                    isLoggedIn:true
-                    })
-                );
-            }
-            catch(err) {
-                 this.setState({
-                     error:err.message
-                 })
-            }
-        })
-       
+        if(!result.success) {
+            toastr.error(Object.values(result.errors),'Problem with register');
+            return
+        }
 
-       event.preventDefault();
+        toastr.success('You can now log in to post comments! :)','Successfully registered!');
+        this.props.history.push('/login')
     }
 
     render() {
-        const {username,email ,password, error} = this.state;
+        const {username,email ,password} = this.state;
         const {isLoggedIn} = this.props;
 
         if(isLoggedIn) {
@@ -81,11 +64,6 @@ class Register extends React.Component {
 
         return (
             <Form className="big" onSubmit={this.handleSubmit}>
-                {
-                error.length
-                ? <div>Something went wrong : {error}</div>
-                :null
-                }
                 <Form.Group controlId="username">
                     <Form.Label>Username</Form.Label>
                     <Form.Control type="text" onChange={this.handleChange} value={username} placeholder="Enter username" />

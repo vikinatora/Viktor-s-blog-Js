@@ -2,6 +2,7 @@ const express = require('express')
 const authCheck = require('../config/auth-check')
 const Post = require('../models/Post')
 const Category = require('../models/Category')
+const Comment = require('../models/Comment');
 
 
 const router = new express.Router()
@@ -22,8 +23,6 @@ function validatePostCreateForm(payload) {
     isFormValid = false
     errors.description = 'Content must be at least 10 symbols and less than 1000 symbols.'
   }
-
-  //Add imageUrl
   
   if (!isFormValid) {
     message = 'Check the form for errors.'
@@ -48,7 +47,7 @@ router.post('/create', authCheck, async (req, res) => {
       })
     }
 
-    let category = await Category.findOne({name:req.body.category});
+    let category = await Category.findOne({name:post.category});
     let postObj = {
         title:post.title,
         content:post.content,
@@ -92,13 +91,13 @@ router.post('/create', authCheck, async (req, res) => {
 router.get('/all', (req, res) => {
   Post
     .find()
+    .sort([['dateCreated', -1]])
     .populate('category')
     .populate({
       path: 'comments',
       populate: { path: 'author' }
     })
     .then(posts => {
-      console.log(posts.comments);
       res.status(200).json(posts)
     })
 })
@@ -109,7 +108,19 @@ router.get('/:id', (req, res) => {
     .findById(postId)
     .populate('category')
     .then(post => {
-      res.status(200).json(post)
+      res.status(200).json({
+        success: true,
+        message: 'Post found successfully.',
+        data: post
+    })
+  })
+  .catch((err) => {
+    console.log(err)
+    let message = "Can't find post with the given id"
+    return res.status(200).json({
+      success: false,
+      message: message
+    })
   })
 })
 
@@ -182,23 +193,18 @@ router.delete('/delete/:id', authCheck, (req, res) => {
   if (req.user.roles.indexOf('Admin') > -1) {
     Post
       .findById(id)
-      .then((post) => {
-        post
-          .remove()
-          .then(() => {
-            return res.status(200).json({
-              success: true,
-              message: 'Post deleted successfully!'
-            })
+      .then((post) => {     
+      post
+        .remove()
+        .then(() => {
+          return res.status(200).json({
+            success: true,
+            message: 'Post deleted successfully!'
+              })
           })
       })
-      .catch(() => {
-        return res.status(200).json({
-          success: false,
-          message: 'Entry does not exist!'
-        })
-      })
-  } else {
+    }
+   else {
     return res.status(200).json({
       success: false,
       message: 'Invalid credentials!'
@@ -206,5 +212,27 @@ router.delete('/delete/:id', authCheck, (req, res) => {
   }
 })
 
+
+router.get('/search/:name', (req, res) => {
+  let name = req.params.name;
+  Post
+    .find({title:name})
+    .populate('category')
+    .then(post => {
+      res.status(200).json({
+        success: true,
+        message: 'Posts found successfully.',
+        data: post
+    })
+  })
+  .catch((err) => {
+    console.log(err)
+    let message = "Can't find post with such query"
+    return res.status(200).json({
+      success: false,
+      message: message
+    })
+  })
+})
 
 module.exports = router

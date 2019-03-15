@@ -1,6 +1,7 @@
 const PassportLocalStrategy = require('passport-local').Strategy
 const User = require('../models/User')
 const encryption = require('../utilities/encryption')
+const secret =  require('../config/settings').development.secret
 
 module.exports = new PassportLocalStrategy({
   usernameField: 'email',
@@ -11,14 +12,15 @@ module.exports = new PassportLocalStrategy({
 
   const user = {
     password: password.trim(),
+    email: email.trim(),
     username: req.body.username.trim()
   }
 
   User
-    .find({username: username})
+    .find({email: email})
     .then(users => {
       if (users.length > 0) {
-        return done('Username already exists!')
+        return done('Email already exists!')
       }
 
       user.salt = encryption.generateSalt()
@@ -28,6 +30,7 @@ module.exports = new PassportLocalStrategy({
       User
         .create(user)
         .then(() => {
+          
           return done(null)
         })
         .catch(() => {
