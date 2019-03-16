@@ -17,8 +17,6 @@ class CreateCategory extends Component {
             imageUrl:''
         }
     
-        // this.updateCategories =  updateCategories.bind(this)
-
     }
     static service = new CategoriesService();
 
@@ -44,7 +42,6 @@ class CreateCategory extends Component {
             return
         }  
         toastr.success(`Successfully created category ${name}`);
-        await this.updateCategories();
         this.props.history.push('/');
     }
 

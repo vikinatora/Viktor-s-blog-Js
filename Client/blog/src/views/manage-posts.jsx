@@ -3,6 +3,7 @@ import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import {Button} from 'react-bootstrap';
 import PostsService from '../services/posts-service';
 import toastr from 'toastr';
+import CategoryContext from '../components/context/category';
 
 class ManagePosts extends Component{
     constructor(props) {
@@ -21,6 +22,7 @@ class ManagePosts extends Component{
             try{
                 await ManagePosts.postService.deletePost(postId);
                 toastr.info('Post successfully deleted');
+                this.props.updateCategories();
                 this.setState({
                     posts:this.state.posts.filter(p=>p.id!==postId)
                 })
@@ -102,4 +104,18 @@ class ManagePosts extends Component{
     }
 }
 
-export default ManagePosts;
+const ManagePostsWithContext = (props) => {
+    return(
+        <CategoryContext.Consumer>
+        {
+            ({updateCategories})=>(
+                <ManagePosts
+                    {...props}
+                    updateCategories={updateCategories}
+                />)
+        }
+        </CategoryContext.Consumer>
+    )
+}
+
+export default ManagePostsWithContext;

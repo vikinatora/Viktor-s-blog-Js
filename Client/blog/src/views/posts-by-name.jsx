@@ -18,9 +18,11 @@ class PostsByName extends Component {
         let query = this.props.match.params.name;
 
         let posts = await PostsByName.service.getPostsByName(query);
-
+        console.log(posts);
+        posts.data = posts.data.filter(post=>post.title.includes(query));
+        console.log(posts.data);
         this.setState({
-            posts,
+            posts:posts.data,
             query
         })
     }
@@ -30,26 +32,23 @@ class PostsByName extends Component {
 
         return(
             <div className="container fluid">
-                    
-                        {
-                            !posts.length
-                            ?
-                            <h1>Couldn't find any posts with "{query}" in their titles</h1>
-                            :
-                            <Fragment>
-                                <h1>Matched {posts.length} posts with "{query}":</h1>
-                                    <div id="post" className="col-lg-8" >
-                                    {
-                                        posts.map(post => 
-                                        <ul key={post._id}>
-                                            <Post post={post}/>
-                                        </ul>)
-                                    }
-                                    </div>
-                            </Fragment>
-                            
-                        }
-                    
+                {
+                    !posts.length
+                    ?
+                    <h1>Couldn't find any posts with "{query}" in their titles</h1>
+                    :
+                    <Fragment>
+                        <h1>Matched {posts.length} posts with "{query}":</h1>
+                            <div id="post" className="col-lg-8" >
+                            {
+                                posts.map(post => 
+                                <ul key={post._id}>
+                                    <Post post={post}/>
+                                </ul>)
+                            }
+                            </div>
+                    </Fragment>              
+                }
                 </div>
         )
     }

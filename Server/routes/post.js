@@ -188,20 +188,27 @@ router.put('/edit/:id', authCheck, async (req, res) => {
   }
 })
 
-router.delete('/delete/:id', authCheck, (req, res) => {
+router.delete('/delete/:id', authCheck, async (req, res) => {
   const id = req.params.id
   if (req.user.roles.indexOf('Admin') > -1) {
     Post
       .findById(id)
-      .then((post) => {     
-      post
-        .remove()
-        .then(() => {
-          return res.status(200).json({
-            success: true,
-            message: 'Post deleted successfully!'
-              })
-          })
+      .then((post) => {    
+        Category.findById(post.category)
+          .then(category=>{
+              let index = category.posts.indexOf(id);
+              category.posts.splice(index,1)
+              category.save()
+                .then(()=>{
+                  post.remove()
+                  .then(() => {
+                  return res.status(200).json({
+                    success: true,
+                    message: 'Post deleted successfully!'
+                    })
+                  })
+                })
+            })
       })
     }
    else {
@@ -215,10 +222,10 @@ router.delete('/delete/:id', authCheck, (req, res) => {
 
 router.get('/search/:name', (req, res) => {
   let name = req.params.name;
-  Post
-    .find({title:name})
+  Post.find()
     .populate('category')
     .then(post => {
+      // post = post.filter(post=>post.title.includes(name));
       res.status(200).json({
         success: true,
         message: 'Posts found successfully.',

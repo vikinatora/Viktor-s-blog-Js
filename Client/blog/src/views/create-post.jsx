@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import CategoryContext from '../components/context/category';
 import {UserConsumer} from '../components/context/user';
 import PostService from '../services/posts-service';
 import CategoriesService from '../services/categories-service';
-
-import Header from '../components/header';
 
 import toastr from 'toastr';
 
@@ -19,7 +18,6 @@ class CreatePost extends Component {
             categories:[],
             category:''
         }
-        // this.updateCategories = this.props.updateCategories.bind(this);
     }
     static postService = new PostService();
     static categoriesService = new CategoriesService();
@@ -47,6 +45,7 @@ class CreatePost extends Component {
 
     handleSubmit = async (event) => {
         const {title, content,category} = this.state;
+        const {updateCategories} = this.props;
 
         event.preventDefault();
 
@@ -62,8 +61,8 @@ class CreatePost extends Component {
             toastr.error(Object.values(result.errors).join("\r\n"),'Problems with creating post');
             return;
         } else {
+            updateCategories();
             toastr.success(`Successfully created ${title} post`);
-            // this.updateCategories();
             this.props.history.push('/');
 
         }
@@ -108,17 +107,24 @@ class CreatePost extends Component {
 
 const CreatePostWithContext = (props) => {
     return (
-        <UserConsumer>
-            {
-                ({isLoggedIn, isAdmin})=>(
-                    <CreatePost
-                        {...props}
-                        isLoggedIn={isLoggedIn}
-                        isAdmin = {isAdmin}
-                    />
-                )
-            }
-        </UserConsumer>
+        <CategoryContext.Consumer>
+            { ({updateCategories, dropdownCategories})=>(
+               <UserConsumer>
+               {
+                   ({isLoggedIn, isAdmin})=>(
+                       <CreatePost
+                           {...props}
+                           isLoggedIn={isLoggedIn}
+                           isAdmin = {isAdmin}
+                           dropdownCategories = {dropdownCategories}
+                           updateCategories={updateCategories}
+                       />
+                   )
+               }
+               </UserConsumer> 
+            )}
+        </CategoryContext.Consumer>
+        
     );
 }
 

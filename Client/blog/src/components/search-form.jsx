@@ -1,11 +1,11 @@
-import React, {Component, Redirect} from 'react'
+import React, {Component} from 'react'
 import Form from 'react-bootstrap/Form'
 import FormControl from 'react-bootstrap/FormControl';
 import FormGroup from 'react-bootstrap/FormGroup'
 import Button from 'react-bootstrap/Button';
 import PostsService from '../services/posts-service';
 
-import toastr from 'toastr';
+import { UserConsumer } from './context/user';
 
 
 class SearchForm extends Component {
@@ -25,22 +25,10 @@ class SearchForm extends Component {
         })
     }
 
-    handleSubmit = (event) => {
-        let{queryString} = this.state
-        // return <Redirect href={`post/search/${queryString}`}></Redirect> 
-        // this.props.history.push('/login')
-        return <Redirect to={`/post/search/${queryString}`}/>
-        // if(queryString && queryString!=="")
-        // {
-        // }
-        // event.preventDefault();
-        // return;
-    }
-
     render(){ 
         let {queryString} = this.state
         return (
-            <Form inline onSubmit={this.handleSubmit}>
+            <Form inline>
                 <FormGroup controlId="queryString">
                     <FormControl 
                                 type="text" 
@@ -51,10 +39,25 @@ class SearchForm extends Component {
                     </FormControl>
                 </FormGroup>
                
-			   <Button variant="outline-success" type="submit">Search</Button>
+			   <Button href={`/post/search/${queryString}`} variant="outline-success" type="submit">Search</Button>
 			</Form>
         )
     }
 }
 
-export default SearchForm
+const SearchFormWithContext = (props) =>{
+    return(
+        <UserConsumer>
+            {
+                ()=>(
+                    <SearchForm
+                        {...props}
+                    />
+                )
+            }
+        </UserConsumer>
+    )
+    
+}
+
+export default SearchFormWithContext

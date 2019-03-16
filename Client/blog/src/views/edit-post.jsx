@@ -97,25 +97,30 @@ class EditPost extends Component {
             <option key={category}>{category}</option>
         )
         return (
-            <Form className="big" onSubmit={this.handleSubmit}>
-            <Form.Group controlId="title">
-                <Form.Label>Title</Form.Label>
-                <Form.Control type="text" onChange={this.handleChange} value={title} placeholder="Enter title" />
+            <div style={{"textAlign":"center"}}>
+                <div style={{"display":"inlineBlock"}}>
+                <Form  onSubmit={this.handleSubmit}>
+                <Form.Group controlId="title">
+                    <Form.Label>Title</Form.Label>
+                    <Form.Control type="text" onChange={this.handleChange} value={title} placeholder="Enter title" />
+                </Form.Group>
+                <Form.Group controlId="content">
+                    <Form.Label>Content</Form.Label>
+                    <Form.Control type="text" onChange={this.handleChange} as="textarea" rows="4" value={content} placeholder="Enter post content" />
+                </Form.Group>
+                <Form.Group controlId="category">
+                <Form.Label>Category</Form.Label>
+                <Form.Control as="select" onChange={this.handleChange} value = {category}>
+                {optionCategories}
+                </Form.Control>
             </Form.Group>
-            <Form.Group controlId="content">
-                <Form.Label>Content</Form.Label>
-                <Form.Control type="text" onChange={this.handleChange} as="textarea" rows="4" value={content} placeholder="Enter post content" />
-            </Form.Group>
-            <Form.Group controlId="category">
-            <Form.Label>Category</Form.Label>
-            <Form.Control as="select" onChange={this.handleChange} value = {category}>
-            {optionCategories}
-            </Form.Control>
-        </Form.Group>
-            <Button variant="primary" type="submit">
-                Edit
-            </Button>
-        </Form>
+                <Button variant="primary" type="submit">
+                    Edit
+                </Button>
+            </Form>
+                </div>
+            </div>
+            
         );
     }
 }

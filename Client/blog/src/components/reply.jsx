@@ -6,7 +6,7 @@ class Reply extends Component {
         return (
             <Fragment>
                  <div className="media-body">
-                <p><strong>{reply.author.username}</strong> at <strong>{reply.dateCreated.slice(11,16)}</strong></p>
+                <p><strong>{reply.author.username}</strong> on <strong>{reply.dateCreated.slice(0,10)}</strong> at <strong>{reply.dateCreated.slice(11,16)}</strong></p>
                 <p style={{"fontSize":"19px"}}>
                     {reply.content}
                 </p>
