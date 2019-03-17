@@ -4,6 +4,7 @@ import {Button} from 'react-bootstrap';
 import PostsService from '../services/posts-service';
 import toastr from 'toastr';
 import CategoryContext from '../components/context/category';
+import { UserConsumer } from '../components/context/user';
 
 class ManagePosts extends Component{
     constructor(props) {
@@ -88,6 +89,13 @@ class ManagePosts extends Component{
     }
 
     render() {
+        const {isLoggedIn, isAdmin} = this.props;
+
+        if(!isLoggedIn || !isAdmin) {
+            this.props.history.push('/');
+            toastr.error('You cannot access this page');
+        }
+
         this.postCounter = 0;
         let {posts} = this.state;
         return (
@@ -106,14 +114,21 @@ class ManagePosts extends Component{
 
 const ManagePostsWithContext = (props) => {
     return(
+
         <CategoryContext.Consumer>
-        {
-            ({updateCategories})=>(
-                <ManagePosts
+            { ({updateCategories, dropdownCategories})=>(
+               <UserConsumer>
+               {
+                   ({isLoggedIn, isAdmin})=>(
+                    <ManagePosts
                     {...props}
+                    isLoggedIn={isLoggedIn}
+                    isAdmin = {isAdmin}
                     updateCategories={updateCategories}
-                />)
-        }
+                    />)
+               }
+               </UserConsumer> 
+            )}
         </CategoryContext.Consumer>
     )
 }

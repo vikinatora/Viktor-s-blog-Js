@@ -51,6 +51,7 @@ class CreateCategory extends Component {
         const {name, imageUrl} = this.state;
 
         if(!isLoggedIn || !isAdmin) {
+            toastr.error('You cannot access this page');
             return <Redirect to="/"/>
         }
 

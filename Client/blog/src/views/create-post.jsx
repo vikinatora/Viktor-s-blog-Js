@@ -69,12 +69,12 @@ class CreatePost extends Component {
         
     }
 
-    render() {
+    render() {        
+        const {title,content, categories, category} = this.state;
         const {isLoggedIn, isAdmin} = this.props;
 
-        const {title,content, categories, category} = this.state;
-
         if(!isLoggedIn || !isAdmin) {
+            toastr.error('You cannot access this page');
             this.props.history.push('/');
         }
         
